@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# must be executed inside a byobu instance :)
+
+byobu new-window -n 'monitoring'
+byobu send-keys 'watch -n1 sensors' C-m
+byobu split-window -h
+byobu send-keys 'htop' C-m
+byobu select-pane -t 0
+byobu split-window -v
+byobu send-keys 'watch -n1 nvidia-smi' C-m
+byobu select-pane -t 2
