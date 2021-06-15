@@ -1,4 +1,8 @@
-apt-get install -y zsh
+if ! command -v zsh &> /dev/null
+then
+  echo "zsh could not be found, trying to install from apt"
+  apt-get install -y zsh
+fi
 
 # oh-my-zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -11,21 +15,12 @@ git clone https://github.com/zpm-zsh/autoenv ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/
 
 sed -i 's/^plugins=.*/plugins=\(git zsh-completions zsh-autosuggestions zsh-syntax-highlighting history-substring-search autoenv\)/' ~/.zshrc
 
-set_zsh_config () {
-    sed -i 's/^$0=.*/$0=$1/' ~/.zshrc
-}
-
 # powerlevel10k setup
 
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 cp ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/config/p10k-classic.zsh ~/.p10k.zsh
 
-# TODO: test
 sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' ~/.zshrc
-
-# TODO: test
-# set_zsh_config ZSH_THEME \"powerlevel10k/powerlevel10k\"
-# set_zsh_config plugins "(git zsh-completions zsh-autosuggestions zsh-syntax-highlighting)"
 
 # in .zshrc, we need to add the following at the beginning of the file
 ZSHRC_PREPEND='''
@@ -72,3 +67,20 @@ sed -i \
     -e "s/POWERLEVEL9K_BATTERY_STAGES=.*/POWERLEVEL9K_BATTERY_STAGES='\\uf58d\\uf579\\uf57a\\uf57b\\uf57c\\uf57d\\uf57e\\uf57f\\uf580\\uf581\\uf578'/" \
     -e "s/POWERLEVEL9K_INSTANT_PROMPT=verbose$/POWERLEVEL9K_INSTANT_PROMPT=quiet/" \
     ~/.p10k.zsh
+
+conda init zsh
+
+FINAL_ZSHRC_TEXT='''
+# to render Qt5 apps nicely over SSH X - not needed in docker
+# export QT_QPA_PLATFORM=kde
+
+# enables usage of monitoring
+export PATH=~/.bin:$PATH
+
+emulate sh -c "source /etc/profile"
+
+# for zsh-completions
+autoload -U compinit && compinit
+'''
+
+echo "$FINAL_ZSHRC_TEXT" >> ~/.zshrc
